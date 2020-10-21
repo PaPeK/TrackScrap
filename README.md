@@ -5,13 +5,12 @@ This small package provides a framework to clean your data. It is minimal and ma
 
 ## Install
 
-Install locally via `pip3 install -e . --user`
+Install locally via `pip install -e . --user`
 
 ## Example
 
 There exists an ipython-notebook example file `TrackScrapExample.ipynb` which will demonstrate some functionalities by cleaning idTracker trajectories of zebra-fish.
-There is one function which exludes unexpected jumps.
-However, it misses small jumps but the package can be extended with other functions very easily.
+There is are three function which exludes unexpected jumps (based on unrealistic accelerations), jumps (better parameter free version), and zigzags.
 
 ## User Agreement
 

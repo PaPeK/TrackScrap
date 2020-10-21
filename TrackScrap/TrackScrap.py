@@ -82,6 +82,70 @@ class IDTracker_TS:
                 return block
 
 
+    def exclude_jumps2(self, returnBlocks=None):
+        '''
+        CAUSED: by missing frames or id-switch
+        IDENTIFIED: (i) by an positive acceleration
+                        directly followed by a similar negative acceleration
+                        -> acc = [80, -80]
+                    (ii) the acceleration should have doubled the speed
+        '''
+        if returnBlocks is None:
+            returnBlocks = False
+        vel = np.diff(self.dat, axis=0)
+        v = np.sqrt(np.sum(vel**2, axis=2))
+        acc = np.diff(v, axis=0)
+        case1 = -acc[:-1] / acc[1:]
+        case1 = (0.8 < case1) & (case1 < 1.2) & (acc[:-1] > 0)
+        # check case (ii)
+        case2 = (acc[:-1] / v[:-2]) > 2
+        jump = case1 & case2
+        block = gen.find_blocks_large(jump.astype(int), 0.5, 1, 1)
+        if len(block) > 0:
+            # block refers to acceleration: positions 2 frames later needs inclusion
+            block[:, 1] += 3
+            self.exclude_blocks(block)
+            if returnBlocks:
+                return block
+
+
+    def exclude_zigZag(self, vlimit, angle=None, returnBlocks=None):
+        '''
+        CAUSED: by tracking errors
+        Reasoning why it must be an error:
+            -Fish can have at certain speeds a maximal turning ability.
+            -Of course, a startle can exceed this maneuvrability but only for 1 frame
+            -For 2 frames followed it is not realistic
+        IDENTIFIED: (i) the direction changes stronger as an threshold
+                        angle twice
+                    (ii) all direction changes happen velocities faster
+                        than the limiting speed
+        TODO: actually it is not checked if the second direction change goes
+                in the opposite direction as the first
+        '''
+        if returnBlocks is None:
+            returnBlocks = False
+        if angle is None:
+            angle = np.pi/2
+        vel = np.diff(self.dat, axis=0)
+        v = np.sqrt(np.sum(vel**2, axis=2))
+        # check case (i)
+        case1 = np.array([gen.angle_between(vel[:-1, i], vel[1:, i])
+                          for i in range(self.N)]).T
+        case1 = (case1[:-1] > angle) & (case1[1:] > angle)
+        # check case (ii)
+        case2 = (v[:-2] > vlimit) & (v[1:-1] > vlimit) & (v[2:] > vlimit)
+        zigZag = case1 & case2
+        block = gen.find_blocks_large(zigZag.astype(int), 0.5, 1, 1)
+        if len(block) > 0:
+            # block refers to acceleration: positions 2 frames later needs inclusion
+            block[:, 1] += 3
+            self.exclude_blocks(block)
+            if returnBlocks:
+                return block
+
+
+
     def interpolate_valid_blocks(self):
         '''
         position interpolation between valid data-blocks

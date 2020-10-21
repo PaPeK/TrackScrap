@@ -159,6 +159,7 @@ def get_blocks(there, minsize):
     blocklen = np.diff(blocks) + 1
     return blocks
 
+
 def loadCsv(f_name, skiprows=None, skipcols=None):
     if skiprows is None:
         skiprows = 0
@@ -177,3 +178,35 @@ def loadCsv(f_name, skiprows=None, skipcols=None):
     data = data.astype(float)
     data[data==-111] = np.nan 
     return data[:, skipcols:]
+
+
+def angle_between(v0, v1, normed=False):
+    '''
+    computes angle between two vectors
+    IPUT:
+        v0.shape(2) or (time, 2)
+            direction 1
+        v1.shape(2) or (time, 2)
+            direction 2
+        normed boolean
+            True -> assume normed vectors
+    OUTPUT:
+        angle float
+    ''' 
+    if len(v0.shape) == 1:
+        assert v0.shape[0] == 2, 'dats wrong 1st. dimension'
+        assert v1.shape[0] == 2, 'date wrong 1st. dimension'
+        if not normed:
+            v0 /= np.sqrt(np.dot(v0, v0))
+            v1 /= np.sqrt(np.dot(v1, v1))
+        angle = np.arccos(np.dot(v0, v1))
+    elif len(v0.shape) == 2:    # for TS
+        assert v0.shape[1] == 2, 'dats wrong 2nd. dimension'
+        assert v1.shape[1] == 2, 'date wrong 2nd. dimension'
+        if not normed:
+            v0 /= np.sqrt(v0[:, 0]**2 + v0[:, 1]**2)[:, None]
+            v1 /= np.sqrt(v1[:, 0]**2 + v1[:, 1]**2)[:, None]
+        angle = np.arccos(v0[:, 0] * v1[:, 0] + v0[:, 1] * v1[:, 1])
+    else:
+        print('WROOOOOOOOOONG dimensensions for v0')
+    return angle
