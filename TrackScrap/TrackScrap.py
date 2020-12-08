@@ -21,7 +21,7 @@ class IDTracker_TS:
             time-length of each block
     '''
     def __init__(self, name_file, ID=None):
-        self.name_file = name_file
+        self.name_file = str(name_file)
         self.load_dat()
         if ID is not None:
             self.ID = ID
@@ -252,3 +252,13 @@ class IDTracker_TS:
             for i in range(1, self.v_N):
                 merged += getattr(self.Dat[i], attri)
         return merged
+
+
+    def tank_CenterAndRadius(self):
+        minne = np.nanmin(np.nanmin(self.dat, axis=0), axis=0)
+        maxxe = np.nanmax(np.nanmax(self.dat, axis=0), axis=0)
+        tank_center = (maxxe + minne) / 2
+        tank_radius = np.max(maxxe - minne) / 2
+        self.tank_center = tank_center
+        self.tank_radius = tank_radius
+        return tank_center, tank_radius

@@ -3,6 +3,25 @@ import csv
 import pandas as pd
 
 
+def listFlatten(nestedList):
+    flatList = []
+    for liste in nestedList:
+        flatList += liste
+    return flatList
+
+
+def append2key(dic, key, dat):
+    '''
+    appends data "dat" to dictionary "dic" if they key already exists
+    if not: create new
+    Note: appends always along 1st. dimension
+    '''
+    if key in dic.keys():
+        dic[key] = np.concatenate((dic[key], dat), axis=0)
+    else:
+        dic[key] = dat
+
+
 def setDefault(x, val):
     if x is None:
         x = val
@@ -176,7 +195,7 @@ def loadCsv(f_name, skiprows=None, skipcols=None):
         data = np.array(data)
     data[data=='NA'] = -111
     data = data.astype(float)
-    data[data==-111] = np.nan 
+    data[data==-111] = np.nan
     return data[:, skipcols:]
 
 
