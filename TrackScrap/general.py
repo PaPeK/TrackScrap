@@ -22,6 +22,18 @@ def append2key(dic, key, dat):
         dic[key] = dat
 
 
+def add2key(dic, key, dat):
+    '''
+    add data "dat" to "dic" if they key already exists
+    if not: create new
+    Note: appends always along 1st. dimension
+    '''
+    if key in dic.keys():
+        dic[key] += dat
+    else:
+        dic[key] = dat
+
+
 def setDefault(x, val):
     if x is None:
         x = val
